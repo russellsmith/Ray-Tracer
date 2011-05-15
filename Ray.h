@@ -3,9 +3,10 @@
  * CS 566
  * February 18, 2011
  */
-#include "Vector3.h"
 #ifndef _RAY_H_
 #define _RAY_H_
+#include "Vector3.h"
+
 
 class Ray{
 public:
@@ -17,7 +18,9 @@ public:
 	void Start(msgfx::Vector3f startPoint);
 	void End(msgfx::Vector3f endPoint);
 	msgfx::Vector3f Direction();
+	int depth;
 private:
 	msgfx::Vector3f start, end;
+	
 };
 #endif

@@ -7,10 +7,9 @@
  *
  */
 
-#include "FaceList.h"
-
 #ifndef _PLYMODEL_H_
 #define _PLYMODEL_H_
+#include "FaceList.h"
 
 FaceList* readPlyModel( const char* filename );
 

@@ -1,8 +1,8 @@
+#ifndef _ORTHOCAM_H_
+#define _ORTHOCAM_H_
 #include "Vector3.h"
 #include "Camera.h"
 #include "Math.h"
-#ifndef _ORTHOCAM_H_
-#define _ORTHOCAM_H_
 #define MAX_DEPTH 25.0
 class Ray;
 class OrthographicCamera : public Camera

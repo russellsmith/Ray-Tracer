@@ -13,6 +13,8 @@
 #include "ViewPlane.h"
 #include "PlyModel.h"
 #include "DirectionalLight.h"
+#include "Constants.h"
+#include "Matte.h"
 #include <string>
 #include <string.h>
 #include <cmath>
@@ -318,7 +320,8 @@ void Scene::parseMaterials( ){
 	{
 		nextToken();
 		checkToken("PhongMaterial", "PhongMaterial");
-		materials[i] = new Material();
+		Matte* m = new Matte();
+		//materials[i] = new Matte();
 		nextToken();
 		checkToken("{", "PhongMaterial");
 		nextToken();
@@ -326,9 +329,13 @@ void Scene::parseMaterials( ){
 		for(int j = 0; j < 3; ++j)
 		{
 			nextToken();
-			materials[i]->diffuseColor[j] = parseFloat();
+			m->diffuseColor[j] = parseFloat();
 		}
-
+		RGBColor cd(m->diffuseColor[0], m->diffuseColor[1], m->diffuseColor[2]);
+		m->SetCD(cd);
+		m->SetKA(KA);
+		m->SetKD(KD);
+		materials[i] = m;
 		nextToken();
 
 		// While not at end of block token
@@ -773,17 +780,20 @@ void Scene::rayTrace(int dimension)
 	vp.PixelSize( (float)(vp.HorizontalResolution() + vp.VerticalResolution()) / (2.0f * dimension) );
 	myCamera->viewPlane(vp);
 	float bigFloat = MAX_DEPTH;
-	int collisions = 0;
+	//int collisions = 0;
 
 	Ray ray;
 	Magick::Image shadedImage(Magick::Geometry(dimension, dimension), myBackgroundColor),
 		depthImage(Magick::Geometry(dimension, dimension), Magick::Color("white"));
+	
+	Hit h1;
+	h1.scenePtr = this;
 
-	Hit h1, min;
-	std::vector<Object3D*>::const_iterator vecIt;
-	std::vector<Object3D*> vecObjects = myGroup->Objects();
-	Magick::ColorRGB phong;
-	int material = 0;
+	/*std::vector<Object3D*>::const_iterator vecIt;
+	std::vector<Object3D*> vecObjects = myGroup->Objects();*/
+	RGBColor phong;
+	Magick::ColorRGB screenColor;
+	//int material = 0;
 	//msgfx::Vector3f start, end;
 	//const int pixelSize = myCamera->viewPlane().PixelSize();
 	int row, col;
@@ -792,42 +802,43 @@ void Scene::rayTrace(int dimension)
 	{
 		row = i / dimension;
 		col = i % dimension;
-		/*if(i % dimension == 0)
-		{
-			currentPosition = topLeftPosition - cameraUp * (i / dimension) * partitionSize;
-		}
-		ray.Start(currentPosition);
-		ray.End(start + cameraDirection * bigFloat);*/
 		myCamera->ComputeRay(col, row, ray);
 		
 
-		min.Depth() = std::numeric_limits<float>::max();
+		//min.Depth() = std::numeric_limits<float>::max();
 		h1.Depth() = std::numeric_limits<float>::max();
 
 		// Check if ray intersects with any objects
-		for(vecIt = vecObjects.begin(); vecIt != vecObjects.end(); ++vecIt)
-		{
-			if((*vecIt)->intersects(ray, h1))
-			{
-				if(h1.Depth() < min.Depth())
-				{
-					min = h1;
-					collisions++;
-					material = (*vecIt)->MaterialIndex();
-				}
-			}
-		}
+		//for(vecIt = vecObjects.begin(); vecIt != vecObjects.end(); ++vecIt)
+		//{
+		//	if((*vecIt)->intersects(ray, h1))
+		//	{
+		//		h1.ray = ray;
+		//		if(h1.Depth() < min.Depth())
+		//		{
+		//			min = h1;
+		//			//collisions++;
+		//			//minRay = ray;
+		//			material = (*vecIt)->MaterialIndex();
+		//		}
+		//	}
+		//}
+		traceRay(ray, 0, h1);
 		
 
-		if(min.Depth() < std::numeric_limits<float>::max() && min.Depth() > 0.f)
+		if(h1.Depth() < std::numeric_limits<float>::max() && h1.Depth() > 0.f)
 		{
 			// Ray collided with object
 			// Set pixel in depth image
-			depthImage.pixelColor(col, row, Magick::ColorRGB(min.Depth(), min.Depth(), min.Depth()));
+			depthImage.pixelColor(col, row, Magick::ColorRGB(h1.Depth(), h1.Depth(), h1.Depth()));
 			
 			// Calculate shading
-			phongShader(min.Position(), min.Normal(), ray.Start(), *materials[material], phong);
-			shadedImage.pixelColor(col, row, phong);
+			phong = materials[h1.materialIndex]->shade(h1);
+			//phongShader(min.Position(), min.Normal(), ray.Start(), *materials[material], phong);
+			screenColor.red(phong.r);
+			screenColor.green(phong.g);
+			screenColor.blue(phong.b);
+			shadedImage.pixelColor(col, row, screenColor);
 		}
 
 		// Adjust currentPosition to the "right" by one pixel sample
@@ -840,7 +851,54 @@ void Scene::rayTrace(int dimension)
 	//printf("%d collisions from %d rays.\n", collisions, dimension * dimension);
 }
 
-void Scene::phongShader(const msgfx::Vector3f& vertex, const msgfx::Vector3f& normal, msgfx::Vector3f camera, const Material& material, Magick::ColorRGB& surfaceColor)
+RGBColor Scene::traceRay(Ray r, int depth, Hit& h)
+{
+	if(depth > RECURSION_DEPTH)
+		return black;
+	Hit min, h1;
+	h1.scenePtr = min.scenePtr = this;
+	Ray minRay;
+	std::vector<Object3D*>::const_iterator vecIt;
+	std::vector<Object3D*> vecObjects = myGroup->Objects();
+	min.Depth() = std::numeric_limits<float>::max();
+	h1.Depth() = std::numeric_limits<float>::max();
+	//int material;
+	RGBColor phong;
+
+	// Check if ray intersects with any objects
+	for(vecIt = vecObjects.begin(); vecIt != vecObjects.end(); ++vecIt)
+	{
+		if((*vecIt)->intersects(r, h1))
+		{
+			h1.ray = r;
+			if(h1.Depth() < min.Depth())
+			{
+				min = h1;
+				//collisions++;
+				//minRay = r;
+				min.materialIndex = (*vecIt)->MaterialIndex();
+			}
+		}
+	}
+		
+
+	if(min.Depth() < std::numeric_limits<float>::max() && min.Depth() > 0.f)
+	{
+		// Ray collided with object
+		// Set pixel in depth image
+		//depthImage.pixelColor(col, row, Magick::ColorRGB(min.Depth(), min.Depth(), min.Depth()));
+			
+		// Calculate shading
+		phong = materials[i]->shade(min);
+		h = min;
+		return phong;
+	}
+	else
+		return black;
+	
+}
+
+void Scene::phongShader(const msgfx::Vector3f& vertex, const msgfx::Vector3f& normal, msgfx::Vector3f camera, const Material& material, RGBColor& surfaceColor)
 {
 	msgfx::Vector3f reflection, light, lightPos;
 	RGBColor c = ambientLight;
@@ -854,6 +912,7 @@ void Scene::phongShader(const msgfx::Vector3f& vertex, const msgfx::Vector3f& no
 	std::vector<Object3D*>::const_iterator vecIt;
 	std::vector<Object3D*> vecObjects = myGroup->Objects();
 	Hit h;
+	h.scenePtr = this;
 	
 	// Translate camera vector to be with respect to vertex
 	camera = camera - vertex;
@@ -908,9 +967,7 @@ void Scene::phongShader(const msgfx::Vector3f& vertex, const msgfx::Vector3f& no
 	}
 	// Clamp color values to be in range of [0.0, 1.0]
 	c.Clamp();
-	surfaceColor.red(c.r);
-	surfaceColor.green(c.g);
-	surfaceColor.blue(c.b);
+	surfaceColor = c;
 }
 
 void Scene::write( std::ostream &out ) const {

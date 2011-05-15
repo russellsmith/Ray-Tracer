@@ -1,10 +1,10 @@
+#ifndef TRIANGLEMESH_H
+#define TRIANGLEMESH_H
+
 #include <vector>
 #include "Object3D.h"
 #include "FaceList.h"
 #include "Triangle.h"
-
-#ifndef TRIANGLEMESH_H
-#define TRIANGLEMESH_H
 
 class TriangleMesh : public Object3D
 {

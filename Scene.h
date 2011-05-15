@@ -3,6 +3,10 @@
  * CS 566
  * February 18, 2011
  */
+
+
+#ifndef _SCENE_H_
+#define _SCENE_H_
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -16,8 +20,7 @@
 #include "Light.h"
 #include "RGBColor.h"
 
-#ifndef _SCENE_H_
-#define _SCENE_H_
+#define RECURSION_DEPTH 40
 class Triangle;
 class Sphere;
 class Plane;
@@ -52,9 +55,13 @@ class Scene{
 		bool parse( );
 
 		void rayTrace(int dimension);
+		RGBColor traceRay(Ray r, int depth, Hit& h);
 
 		// I/O
 		void write( std::ostream &out ) const;
+		RGBColor ambientLight;
+		Light **myLights;
+		int myNumberOfLights;
 
 	private:
 		string myInputSceneFile;
@@ -63,14 +70,14 @@ class Scene{
 		Camera *myCamera;
 		Magick::ColorRGB myBackgroundColor;
 		int myNumberOfMaterials;
-		int myNumberOfLights;
+		
 		Material **materials;
 		Material *myCurrentMaterial;
 		Group *myGroup;
-		Light **myLights;
+		
 		ViewPlane myViewplane;
 		ifstream inputFileStream;
-		RGBColor ambientLight;
+		
 		
 		// For parsing
 		char currentLine[255];
@@ -88,7 +95,7 @@ class Scene{
 		void advance( );
 		void checkToken( const char *str, const char *stage  );
 		void parseBackground( );
-		void phongShader(const msgfx::Vector3f& vertex, const msgfx::Vector3f& normal, msgfx::Vector3f camera, const Material& material, Magick::ColorRGB& surfaceColor);
+		void phongShader(const msgfx::Vector3f& vertex, const msgfx::Vector3f& normal, msgfx::Vector3f camera, const Material& material, RGBColor& surfaceColor);
 		float parseFloat( );
     double parseDouble( );
 		int parseInt( );

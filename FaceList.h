@@ -7,14 +7,15 @@
  * floats for storage.
  */
 
+
+#ifndef _FACELIST_H_
+#define _FACELIST_H_
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <cmath>
 #include "Vector3.h"
-
-#ifndef _FACELIST_H_
-#define _FACELIST_H_
 
 #ifndef MIN
 #define MIN( x, y ) ((x) <= (y) ? (x) :  (y))

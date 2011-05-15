@@ -3,14 +3,18 @@
  * CS 566
  * February 18, 2011
  */
-#include <ostream>
+
 #ifndef _PHONG_MATERIAL_H_
 #define _PHONG_MATERIAL_H_
+#include <ostream>
+#include "RGBColor.h"
+#include "Hit.h"
 
 class Material{
 public:
 	Material( );
 	~Material( );
+	virtual RGBColor shade(Hit& h) = 0;
 	void write(std::ostream &out) const;
 
 	float diffuseColor[3];

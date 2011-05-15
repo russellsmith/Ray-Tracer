@@ -6,11 +6,12 @@
  * $Id: common.h 1961 2010-02-24 08:46:53Z mshafae $
  *
  */
- 
-#include <iostream>
+
 
 #ifndef _COMMON_H_
 #define _COMMON_H_
+ 
+#include <iostream>
 
 #define SQR(x) ((x)*(x))
 

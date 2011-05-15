@@ -3,10 +3,11 @@
  * CS 566
  * February 18, 2011
  */
-#include "Object3D.h"
-#include "Vector3.h"
+
 #ifndef _SPHERE_H_
 #define _SPHERE_H_
+#include "Object3D.h"
+#include "Vector3.h"
 
 class Sphere : public Object3D
 {

@@ -1,7 +1,7 @@
-#include "Vector3.h"
-#include "Object3D.h"
 #ifndef _TRIANGLE_H_
 #define _TRIANGLE_H_
+#include "Vector3.h"
+#include "Object3D.h"
 
 class Ray;
 class Hit;

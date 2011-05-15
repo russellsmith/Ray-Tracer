@@ -3,11 +3,12 @@
  * CS 566
  * February 18, 2011
  */
+
+#ifndef _GROUP_H_
+#define _GROUP_H_
 #include <vector>
 #include "Object3D.h"
 #include "Sphere.h"
-#ifndef _GROUP_H_
-#define _GROUP_H_
 
 class Group{
 public:

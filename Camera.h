@@ -3,11 +3,12 @@
  * CS 566
  * February 18, 2011
  */
+
+#ifndef _CAMERA_H_
+#define _CAMERA_H_
 #include "Vector3.h"
 #include "Math.h"
 #include "ViewPlane.h"
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
 class Ray;
 class Camera{
 public:

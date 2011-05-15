@@ -3,11 +3,12 @@
  * CS 566
  * February 18, 2011
  */
+
+#ifndef _OBJECT3D_H_
+#define _OBJECT3D_H_
 #include <ostream>
 #include "Ray.h"
 #include "Hit.h"
-#ifndef _OBJECT3D_H_
-#define _OBJECT3D_H_
 
 class Object3D
 {

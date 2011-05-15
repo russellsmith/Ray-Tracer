@@ -7,14 +7,16 @@
 
 Ray::Ray() :
 	start(0.f, 0.f, 0.f),
-	end(0.f, 0.f, 0.f)
+	end(0.f, 0.f, 0.f),
+	depth(0)
 {
 
 }
 
 Ray::Ray(msgfx::Vector3f startPoint, msgfx::Vector3f endPoint) :
 	start(startPoint),
-	end(endPoint)
+	end(endPoint),
+	depth(0)
 {
 
 }

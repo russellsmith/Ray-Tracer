@@ -4,10 +4,11 @@
  * April 9, 2011
  */
 
-#include "Light.h"
-#include "Vector3.h"
+
 #ifndef _DIRECTIONALLIGHT_H_
 #define _DIRECTIONALLIGHT_H_
+#include "Light.h"
+#include "Vector3.h"
 
 class DirectionalLight : public Light
 {

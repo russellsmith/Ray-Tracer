@@ -1,8 +1,7 @@
-#include "Object3D.h"
-#include "Vector3.h"
-
 #ifndef _PLANE_H_
 #define _PLANE_H_
+#include "Object3D.h"
+#include "Vector3.h"
 
 class Plane : public Object3D
 {

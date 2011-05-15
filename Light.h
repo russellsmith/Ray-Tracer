@@ -1,7 +1,7 @@
-#include "Vector3.h"
-#include "RGBColor.h"
 #ifndef _LIGHT_H_
 #define _LIGHT_H_
+#include "Vector3.h"
+#include "RGBColor.h"
 enum LightTypes
 {
 	Point = 1,
