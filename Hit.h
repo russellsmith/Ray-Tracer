@@ -24,5 +24,6 @@ public:
 	Ray ray;
 	Scene* scenePtr;
 	int materialIndex;
+	int recursionDepth;
 };
 #endif

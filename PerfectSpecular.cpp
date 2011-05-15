@@ -23,14 +23,15 @@ RGBColor PerfectSpecular::f(const Hit& h, const msgfx::Vector3f& wi, const msgfx
 	return black;
 }
 RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgfx::Vector3f& wo, float& pdf) const{
+	return black;
+	
+}
+RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgfx::Vector3f& wo) const{
 	float ndotwo = h.normal.dot(wo);
 	wi = -wo + h.normal * 2.0f * ndotwo;
 
 
 	return (_cr * (_kr / h.normal.dot(wi)));
-}
-RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgfx::Vector3f& wo) const{
-	return black;
 }
 RGBColor PerfectSpecular::rho(const Hit& h, const msgfx::Vector3f& wo) const{
 	return black;

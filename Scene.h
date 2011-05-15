@@ -20,7 +20,7 @@
 #include "Light.h"
 #include "RGBColor.h"
 
-#define RECURSION_DEPTH 40
+#define RECURSION_DEPTH 2
 class Triangle;
 class Sphere;
 class Plane;

@@ -12,7 +12,9 @@ Phong::Phong() : Material(),
 	SetKS(0.01f);
 }
 Phong::~Phong(){
-
+	delete _ambientBRDF;
+	delete _diffuseBRDF;
+	delete _specularBRDF;
 }
 void Phong::SetKA(const float ka){
 	_ambientBRDF->SetKD(ka);

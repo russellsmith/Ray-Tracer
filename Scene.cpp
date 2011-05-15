@@ -10,12 +10,14 @@
 #include "Plane.h"
 #include "OrthoCamera.h"
 #include "PerspectiveCamera.h"
+#include "MultiJittered.h"
 #include "ViewPlane.h"
 #include "PlyModel.h"
 #include "DirectionalLight.h"
 #include "Constants.h"
 #include "Matte.h"
 #include "Phong.h"
+#include "Reflective.h"
 #include <string>
 #include <string.h>
 #include <cmath>
@@ -321,7 +323,7 @@ void Scene::parseMaterials( ){
 	{
 		nextToken();
 		checkToken("PhongMaterial", "PhongMaterial");
-		Phong* m = new Phong();
+		Reflective* m = new Reflective();
 		//materials[i] = new Matte();
 		nextToken();
 		checkToken("{", "PhongMaterial");
@@ -338,6 +340,12 @@ void Scene::parseMaterials( ){
 		m->SetKD(KD);
 		materials[i] = m;
 		nextToken();
+
+		cd.r = 1.0;
+		cd.g = .2;
+		cd.b = .3;
+		m->SetCR(cd);
+		m->SetKR(0.7);
 
 		// While not at end of block token
 		while(strcmp("}", currentToken) != 0)
@@ -791,6 +799,7 @@ void Scene::rayTrace(int dimension)
 	
 	Hit h1;
 	h1.scenePtr = this;
+	h1.recursionDepth = 0;
 
 	/*std::vector<Object3D*>::const_iterator vecIt;
 	std::vector<Object3D*> vecObjects = myGroup->Objects();*/
@@ -860,6 +869,7 @@ RGBColor Scene::traceRay(Ray r, int depth, Hit& h)
 		return black;
 	Hit min, h1;
 	h1.scenePtr = min.scenePtr = this;
+	h1.recursionDepth = min.recursionDepth = depth;
 	Ray minRay;
 	std::vector<Object3D*>::const_iterator vecIt;
 	std::vector<Object3D*> vecObjects = myGroup->Objects();
@@ -893,6 +903,7 @@ RGBColor Scene::traceRay(Ray r, int depth, Hit& h)
 			
 		// Calculate shading
 		phong = materials[i]->shade(min);
+		
 		h = min;
 		return phong;
 	}
