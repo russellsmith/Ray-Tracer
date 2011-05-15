@@ -1,4 +1,5 @@
 #include "RGBColor.h"
+#include <algorithm>
 
 RGBColor::RGBColor() : r(0.f), g(0.f), b(0.f)
 {
@@ -41,7 +42,8 @@ RGBColor RGBColor::operator*(const RGBColor& c) const{
 
 void RGBColor::Clamp()
 {
-	if(r > 1.f)
+	MaxToOne();
+	/*if(r > 1.f)
 		r = 1.f;
 	else if(r < 0.f)
 		r = 0.f;
@@ -52,5 +54,16 @@ void RGBColor::Clamp()
 	if(b > 1.f)
 		b = 1.f;
 	else if(b < 0.f)
-		b = 0.f;
+		b = 0.f;*/
+}
+
+void RGBColor::MaxToOne(){
+	float maxValue = std::max(r, std::max(g, b));
+
+	if(maxValue > 1.0)
+	{
+		r /= maxValue;
+		g /= maxValue;
+		b /= maxValue;
+	}
 }

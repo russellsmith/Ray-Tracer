@@ -19,6 +19,7 @@ public:
 	void Clamp();
 
 private:
+	void MaxToOne();
 };
 
 #endif

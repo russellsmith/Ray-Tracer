@@ -29,6 +29,9 @@ RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgf
 
 	return (_cr * (_kr / h.normal.dot(wi)));
 }
+RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgfx::Vector3f& wo) const{
+	return black;
+}
 RGBColor PerfectSpecular::rho(const Hit& h, const msgfx::Vector3f& wo) const{
 	return black;
 }

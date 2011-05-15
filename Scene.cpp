@@ -15,6 +15,7 @@
 #include "DirectionalLight.h"
 #include "Constants.h"
 #include "Matte.h"
+#include "Phong.h"
 #include <string>
 #include <string.h>
 #include <cmath>
@@ -320,7 +321,7 @@ void Scene::parseMaterials( ){
 	{
 		nextToken();
 		checkToken("PhongMaterial", "PhongMaterial");
-		Matte* m = new Matte();
+		Phong* m = new Phong();
 		//materials[i] = new Matte();
 		nextToken();
 		checkToken("{", "PhongMaterial");
@@ -347,13 +348,15 @@ void Scene::parseMaterials( ){
 				for(int j = 0; j < 3; ++j)
 				{
 					nextToken();
-					materials[i]->specularColor[j] = parseFloat();
+					m->specularColor[j] = parseFloat();
 				}
+				RGBColor cs(m->specularColor[0], m->specularColor[1], m->specularColor[2]);
+				m->SetCS(cs);
 			}
 			else if(strcmp("exponent", currentToken) == 0)
 			{
 				nextToken();
-				materials[i]->exponent = parseFloat();
+				m->SetExponent(parseFloat());
 			}
 			else if(strcmp("transparentColor", currentToken) == 0)
 			{

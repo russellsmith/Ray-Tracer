@@ -1,9 +1,10 @@
 #include "Lambertian.h"
 #include "Constants.h"
 #include "Point3D.h"
+#include "MultiJittered.h"
 
 Lambertian::Lambertian(){
-	_sampler = NULL;
+	_sampler = new MultiJittered(40);
 }
 Lambertian::~Lambertian(){
 	if(_sampler != NULL)
