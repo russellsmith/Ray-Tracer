@@ -4,7 +4,7 @@
 
 class ViewPlane {
 public:
-	ViewPlane() : _hres(0), _vres(0), _pixelSize(1.f), num_samples(50) {  }
+	ViewPlane() : _hres(0), _vres(0), _pixelSize(1.f), num_samples(256) {  }
 	ViewPlane(float hres, float vres) : _hres(hres), _vres(vres), _pixelSize(1.f) { }
 	~ViewPlane() {}
 	const float& PixelSize() { return _pixelSize; }

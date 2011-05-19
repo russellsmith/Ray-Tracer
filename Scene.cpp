@@ -412,6 +412,28 @@ void Scene::parseMaterials( ){
 	checkToken("}", "Materials");
 }
 
+bool Scene::isPointVisibleToLight(msgfx::Vector3f position, Light* light){
+	Ray shadowRay;
+	shadowRay.Start(position);
+	shadowRay.End(light->Position());
+	// Get magnitude of distance from position to light
+	float distance = (light->Position() - position).length();
+	Hit h;
+	
+	std::vector<Object3D*>::const_iterator vecIt;
+
+	for(vecIt = myGroup->Objects().begin(); vecIt != myGroup->Objects().end(); ++vecIt)
+	{
+		if((*vecIt)->intersects(shadowRay, h) && h.Depth() < distance && h.Depth() > EPSILON)
+		{
+			return false;
+		}
+
+	}
+	return true;
+	
+}
+
 void Scene::parseGroup( ){
 	int numObjects;
 	int materialIndex = 0;
@@ -1078,6 +1100,7 @@ RGBColor Scene::traceRay(Ray r, int depth, Hit& h)
 			
 		// Calculate shading
 		phong = materials[min.materialIndex]->shade(min);
+		phong.Clamp();
 		
 		h = min;
 		return phong;

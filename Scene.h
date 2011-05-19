@@ -20,7 +20,8 @@
 #include "Light.h"
 #include "RGBColor.h"
 
-#define RECURSION_DEPTH 40
+#define RECURSION_DEPTH 10
+#define EPSILON .0000001
 class Triangle;
 class Sphere;
 class Plane;
@@ -58,6 +59,7 @@ class Scene{
 		bool parse( );
 
 		void rayTrace(int dimension);
+		bool isPointVisibleToLight(msgfx::Vector3f position, Light* light);
 		RGBColor traceRay(Ray r, int depth, Hit& h);
 
 		// I/O

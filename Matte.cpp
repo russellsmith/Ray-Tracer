@@ -35,9 +35,11 @@ RGBColor Matte::shade(Hit& h){
 
 		if(ndotwi > 0.0){
 			// Calculate attenuation factor
-			
-			float attenuation = 1 / (d*d*h.scenePtr->myLights[i]->Attenuation().r + d*h.scenePtr->myLights[i]->Attenuation().g + h.scenePtr->myLights[i]->Attenuation().b);
-			L = L + _diffuseBRDF->f(h, wo, wi) * h.scenePtr->myLights[i]->Color() * ndotwi * attenuation;
+			if(h.scenePtr->isPointVisibleToLight(h.Position(), h.scenePtr->myLights[i]))
+			{
+				float attenuation = 1 / (d*d*h.scenePtr->myLights[i]->Attenuation().r + d*h.scenePtr->myLights[i]->Attenuation().g + h.scenePtr->myLights[i]->Attenuation().b);
+				L = L + _diffuseBRDF->f(h, wo, wi) * h.scenePtr->myLights[i]->Color() * ndotwi * attenuation;
+			}
 		}
 			
 	}
