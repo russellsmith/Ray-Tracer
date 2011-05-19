@@ -9,6 +9,7 @@
 #include "Vector3.h"
 #include "Math.h"
 #include "ViewPlane.h"
+#include "MultiJittered.h"
 class Ray;
 class Camera{
 public:
@@ -16,8 +17,11 @@ public:
 		_position.set(0.f, 0.f, 0.f);
 		_up.set(0.f, 0.f, 0.f);
 		_direction.set(0.f, 0.f, 0.f);
+		_sampler = new MultiJittered(_viewPlane.num_samples);
 	}
-	~Camera( ) {}
+	~Camera( ) {
+		delete _sampler;
+	}
 	void Position(const float& x, const float& y, const float& z) {
 		_position.set(x, y, z);
 	}
@@ -55,6 +59,7 @@ protected:
 	msgfx::Vector3f _up, _direction;
 	msgfx::Vector3f _u, _v, _w;
 	ViewPlane _viewPlane;
+	MultiJittered* _sampler;
 };
 
 std::ostream& operator <<( std::ostream &out, const Camera &h);

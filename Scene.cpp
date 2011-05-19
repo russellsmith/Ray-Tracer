@@ -23,9 +23,10 @@
 #include <cmath>
 #include <assert.h>
 #include <limits>
-#define KA 0.01
+#define KA 0.25
 #define KD 0.5
-#define KS 0.5
+#define KS 0.15
+#define KR 0.75
 #define PIDIV180 0.0174532925
 
 struct Color
@@ -318,77 +319,94 @@ void Scene::parseMaterials( ){
 	nextToken();
 	myNumberOfMaterials = parseInt();
 	materials = new Material*[myNumberOfMaterials];
+	Material* material;
 
 	for(int i = 0; i < myNumberOfMaterials; ++i)
 	{
 		nextToken();
-		checkToken("PhongMaterial", "PhongMaterial");
-		Reflective* m = new Reflective();
-		//materials[i] = new Matte();
-		nextToken();
-		checkToken("{", "PhongMaterial");
-		nextToken();
-		checkToken("diffuseColor", "PhongMaterial");
-		for(int j = 0; j < 3; ++j)
+		if(strcmp("Reflective", currentToken) == 0)
 		{
-			nextToken();
-			m->diffuseColor[j] = parseFloat();
+			material = parseReflectiveMaterial();
+			materials[i] = material;
 		}
-		RGBColor cd(m->diffuseColor[0], m->diffuseColor[1], m->diffuseColor[2]);
-		m->SetCD(cd);
-		m->SetKA(KA);
-		m->SetKD(KD);
-		materials[i] = m;
-		nextToken();
-
-		cd.r = 1.0;
-		cd.g = .2;
-		cd.b = .3;
-		m->SetCR(cd);
-		m->SetKR(0.7);
-
-		// While not at end of block token
-		while(strcmp("}", currentToken) != 0)
+		else if(strcmp("Phong", currentToken) == 0)
 		{
-			// Check for optional parameters
-			if(strcmp("specularColor", currentToken) == 0)
-			{
-				for(int j = 0; j < 3; ++j)
-				{
-					nextToken();
-					m->specularColor[j] = parseFloat();
-				}
-				RGBColor cs(m->specularColor[0], m->specularColor[1], m->specularColor[2]);
-				m->SetCS(cs);
-			}
-			else if(strcmp("exponent", currentToken) == 0)
-			{
-				nextToken();
-				m->SetExponent(parseFloat());
-			}
-			else if(strcmp("transparentColor", currentToken) == 0)
-			{
-				for(int j = 0; j < 3; ++j)
-				{
-					nextToken();
-					materials[i]->transparentColor[j] = parseFloat();
-				}
-			}
-			else if(strcmp("reflectiveColor", currentToken) == 0)
-			{
-				for(int j = 0; j < 3; ++j)
-				{
-					nextToken();
-					materials[i]->reflectiveColor[j] = parseFloat();
-				}
-			}
-			else if(strcmp("indexOfRefraction", currentToken) == 0)
-			{
-				nextToken();
-				materials[i]->indexOfRefraction = parseFloat();
-			}
-			nextToken();
+			material = parsePhongMaterial();
+			materials[i] = material;
 		}
+		else if(strcmp("Matte", currentToken) == 0)
+		{
+			material = parseMatteMaterial();
+			materials[i] = material;
+		}
+		
+		//checkToken("PhongMaterial", "PhongMaterial");
+		//Reflective* m = new Reflective();
+		////materials[i] = new Matte();
+		//nextToken();
+		//checkToken("{", "PhongMaterial");
+		//nextToken();
+		//checkToken("diffuseColor", "PhongMaterial");
+		//for(int j = 0; j < 3; ++j)
+		//{
+		//	nextToken();
+		//	m->diffuseColor[j] = parseFloat();
+		//}
+		//RGBColor cd(m->diffuseColor[0], m->diffuseColor[1], m->diffuseColor[2]);
+		//m->SetCD(cd);
+		//m->SetKA(KA);
+		//m->SetKD(KD);
+		//materials[i] = m;
+		//nextToken();
+
+		///*cd.r = 1.0;
+		//cd.g = .2;
+		//cd.b = .3;*/
+		//m->SetCR(white);
+		//m->SetKR(KR);
+
+		//// While not at end of block token
+		//while(strcmp("}", currentToken) != 0)
+		//{
+		//	// Check for optional parameters
+		//	if(strcmp("specularColor", currentToken) == 0)
+		//	{
+		//		for(int j = 0; j < 3; ++j)
+		//		{
+		//			nextToken();
+		//			m->specularColor[j] = parseFloat();
+		//		}
+		//		RGBColor cs(m->specularColor[0], m->specularColor[1], m->specularColor[2]);
+		//		m->SetCS(cs);
+		//	}
+		//	else if(strcmp("exponent", currentToken) == 0)
+		//	{
+		//		nextToken();
+		//		m->SetExponent(parseFloat());
+		//	}
+		//	else if(strcmp("transparentColor", currentToken) == 0)
+		//	{
+		//		for(int j = 0; j < 3; ++j)
+		//		{
+		//			nextToken();
+		//			materials[i]->transparentColor[j] = parseFloat();
+		//		}
+		//	}
+		//	else if(strcmp("reflectiveColor", currentToken) == 0)
+		//	{
+		//		for(int j = 0; j < 3; ++j)
+		//		{
+		//			nextToken();
+		//			materials[i]->reflectiveColor[j] = parseFloat();
+		//		}
+		//	}
+		//	else if(strcmp("indexOfRefraction", currentToken) == 0)
+		//	{
+		//		nextToken();
+		//		materials[i]->indexOfRefraction = parseFloat();
+		//	}
+		//	nextToken();
+		//}
 	}
 	nextToken();
 	checkToken("}", "Materials");
@@ -702,6 +720,183 @@ Plane* Scene::parsePlane( )
 	return p;
 }
 
+Reflective* Scene::parseReflectiveMaterial(){
+	float input[3];
+	Reflective* material = NULL;
+	checkToken("Reflective", "Reflective");
+	nextToken();
+	checkToken("{", "Reflective");
+	nextToken();
+
+	// Parse ambient coefficient
+	checkToken("ambientCoefficient", "Reflective");
+	nextToken();
+	input[0] = parseFloat();
+	nextToken();
+	material = new Reflective;
+	material->SetKA(input[0]);
+
+	// Parse diffuse coefficient
+	checkToken("diffuseCoefficient", "Reflective");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetKD(input[0]);
+	nextToken();
+
+	// Parse specular coefficient
+	checkToken("specularCoefficient", "Reflective");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetKS(input[0]);
+	nextToken();
+
+	// Parse reflection coefficient
+	checkToken("reflectionCoefficient", "Reflective");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetKR(input[0]);
+	nextToken();
+
+	// Parse exponent
+	checkToken("exponent", "Reflective");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetExponent(input[0]);
+	nextToken();
+
+	// Parse diffuse color
+	checkToken("diffuseColor", "Reflective");
+	nextToken();
+	int i;
+	for(i = 0; i < 3; ++i)
+	{
+		input[i] = parseFloat();
+		nextToken();
+	}
+	material->SetCD(RGBColor(input[0], input[1], input[2]));
+
+	// Parse specular color
+	checkToken("specularColor", "Reflective");
+	nextToken();
+	for(i = 0; i < 3; ++i)
+	{
+		input[i] = parseFloat();
+		nextToken();
+	}
+	material->SetCS(RGBColor(input[0], input[1], input[2]));
+
+	// Parse reflective color
+	checkToken("reflectionColor", "Reflective");
+	nextToken();
+	for(i = 0; i < 3; ++i)
+	{
+		input[i] = parseFloat();
+		nextToken();
+	}
+	material->SetCR(RGBColor(input[0], input[1], input[2]));
+
+	checkToken("}", "Reflective");
+	return material;
+}
+Matte* Scene::parseMatteMaterial(){
+	float input[3];
+	Matte* material = NULL;
+	checkToken("Matte", "Matte");
+	nextToken();
+	checkToken("{", "Matte");
+	nextToken();
+
+	// Parse ambient coefficient
+	checkToken("ambientCoefficient", "Matte");
+	nextToken();
+	input[0] = parseFloat();
+	nextToken();
+	material = new Matte;
+	material->SetKA(input[0]);
+
+	// Parse diffuse coefficient
+	checkToken("diffuseCoefficient", "Matte");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetKD(input[0]);
+	nextToken();
+
+	// Parse diffuse color
+	checkToken("diffuseColor", "Matte");
+	nextToken();
+	int i;
+	for(i = 0; i < 3; ++i)
+	{
+		input[i] = parseFloat();
+		nextToken();
+	}
+	material->SetCD(RGBColor(input[0], input[1], input[2]));
+
+	checkToken("}", "Matte");
+	return material;
+}
+Phong* Scene::parsePhongMaterial(){
+	float input[3];
+	Phong* material = NULL;
+	checkToken("Phong", "Phong");
+	nextToken();
+	checkToken("{", "Phong");
+	nextToken();
+
+	// Parse ambient coefficient
+	checkToken("ambientCoefficient", "Phong");
+	nextToken();
+	input[0] = parseFloat();
+	nextToken();
+	material = new Phong;
+	material->SetKA(input[0]);
+
+	// Parse diffuse coefficient
+	checkToken("diffuseCoefficient", "Phong");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetKD(input[0]);
+	nextToken();
+
+	// Parse specular coefficient
+	checkToken("specularCoefficient", "Phong");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetKS(input[0]);
+	nextToken();
+
+	// Parse exponent
+	checkToken("exponent", "Phong");
+	nextToken();
+	input[0] = parseFloat();
+	material->SetExponent(input[0]);
+	nextToken();
+
+	// Parse diffuse color
+	checkToken("diffuseColor", "Phong");
+	nextToken();
+	int i;
+	for(i = 0; i < 3; ++i)
+	{
+		input[i] = parseFloat();
+		nextToken();
+	}
+	material->SetCD(RGBColor(input[0], input[1], input[2]));
+
+	// Parse specular color
+	checkToken("specularColor", "Phong");
+	nextToken();
+	for(i = 0; i < 3; ++i)
+	{
+		input[i] = parseFloat();
+		nextToken();
+	}
+	material->SetCS(RGBColor(input[0], input[1], input[2]));
+
+	checkToken("}", "Phong");
+	return material;
+}
+
 
 bool Scene::parse( ){	
 	bool ret = true;
@@ -787,6 +982,7 @@ void Scene::nextToken( ){
 
 void Scene::rayTrace(int dimension)
 {
+	//MultiJittered sampler(100);
 	ViewPlane vp = myCamera->viewPlane();
 	vp.PixelSize( (float)(vp.HorizontalResolution() + vp.VerticalResolution()) / (2.0f * dimension) );
 	myCamera->viewPlane(vp);
@@ -801,57 +997,36 @@ void Scene::rayTrace(int dimension)
 	h1.scenePtr = this;
 	h1.recursionDepth = 0;
 
-	/*std::vector<Object3D*>::const_iterator vecIt;
-	std::vector<Object3D*> vecObjects = myGroup->Objects();*/
 	RGBColor phong;
 	Magick::ColorRGB screenColor;
-	//int material = 0;
-	//msgfx::Vector3f start, end;
-	//const int pixelSize = myCamera->viewPlane().PixelSize();
 	int row, col;
 	// Create rays
 	for(int i = 0; i < dimension * dimension; ++i)
 	{
 		row = i / dimension;
 		col = i % dimension;
-		myCamera->ComputeRay(col, row, ray);
-		
-
-		//min.Depth() = std::numeric_limits<float>::max();
-		h1.Depth() = std::numeric_limits<float>::max();
-
-		// Check if ray intersects with any objects
-		//for(vecIt = vecObjects.begin(); vecIt != vecObjects.end(); ++vecIt)
-		//{
-		//	if((*vecIt)->intersects(ray, h1))
-		//	{
-		//		h1.ray = ray;
-		//		if(h1.Depth() < min.Depth())
-		//		{
-		//			min = h1;
-		//			//collisions++;
-		//			//minRay = ray;
-		//			material = (*vecIt)->MaterialIndex();
-		//		}
-		//	}
-		//}
-		traceRay(ray, 0, h1);
-		
-
-		if(h1.Depth() < std::numeric_limits<float>::max() && h1.Depth() > 0.f)
+		for(int j = 0; j < vp.num_samples; ++j)
 		{
-			// Ray collided with object
-			// Set pixel in depth image
-			depthImage.pixelColor(col, row, Magick::ColorRGB(h1.Depth(), h1.Depth(), h1.Depth()));
-			
-			// Calculate shading
-			phong = materials[h1.materialIndex]->shade(h1);
-			//phongShader(min.Position(), min.Normal(), ray.Start(), *materials[material], phong);
-			screenColor.red(phong.r);
-			screenColor.green(phong.g);
-			screenColor.blue(phong.b);
-			shadedImage.pixelColor(col, row, screenColor);
+			myCamera->ComputeRay(col, row, ray);
+			h1.Depth() = std::numeric_limits<float>::max();
+
+			phong = phong + traceRay(ray, 0, h1);
 		}
+
+		phong = phong / vp.num_samples;
+		
+
+		//if(h1.Depth() < std::numeric_limits<float>::max() && h1.Depth() > 0.f)
+		//{
+		// Ray collided with object
+		// Set pixel in depth image
+		depthImage.pixelColor(col, row, Magick::ColorRGB(h1.Depth(), h1.Depth(), h1.Depth()));
+			
+		screenColor.red(phong.r);
+		screenColor.green(phong.g);
+		screenColor.blue(phong.b);
+		shadedImage.pixelColor(col, row, screenColor);
+		//}
 
 		// Adjust currentPosition to the "right" by one pixel sample
 		//currentPosition += cameraRight * partitionSize;
@@ -902,7 +1077,7 @@ RGBColor Scene::traceRay(Ray r, int depth, Hit& h)
 		//depthImage.pixelColor(col, row, Magick::ColorRGB(min.Depth(), min.Depth(), min.Depth()));
 			
 		// Calculate shading
-		phong = materials[i]->shade(min);
+		phong = materials[min.materialIndex]->shade(min);
 		
 		h = min;
 		return phong;

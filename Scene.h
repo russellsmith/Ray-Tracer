@@ -20,12 +20,15 @@
 #include "Light.h"
 #include "RGBColor.h"
 
-#define RECURSION_DEPTH 2
+#define RECURSION_DEPTH 40
 class Triangle;
 class Sphere;
 class Plane;
 class ViewPlane;
 class TriangleMesh;
+class Reflective;
+class Phong;
+class Matte;
 using namespace std;
 
 class Scene{
@@ -99,7 +102,6 @@ class Scene{
 		float parseFloat( );
     double parseDouble( );
 		int parseInt( );
-		// Finish these...
 		void parseMaterials( );
 		void parseGroup( );
 		void parseLightGroup();
@@ -110,6 +112,9 @@ class Scene{
 		Sphere*  parseSphere( );
 		Plane* parsePlane( );
 		TriangleMesh* parseTriangleMesh();
+		Reflective* parseReflectiveMaterial();
+		Matte* parseMatteMaterial();
+		Phong* parsePhongMaterial();
 };
 
 std::ostream& operator <<( std::ostream &out, const Scene &s );

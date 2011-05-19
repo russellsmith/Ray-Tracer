@@ -35,6 +35,12 @@ RGBColor RGBColor::operator*(const float& f) const
 	RGBColor tmp(r * f, g * f, b * f);
 	return tmp;
 }
+
+RGBColor RGBColor::operator/(const float& f) const{
+	RGBColor tmp(r / f, g / f, b / f);
+	return tmp;
+}
+
 RGBColor RGBColor::operator*(const RGBColor& c) const{
 	RGBColor tmp(r * c.r, g * c.g, b * c.b);
 	return tmp;

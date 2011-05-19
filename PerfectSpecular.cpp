@@ -29,7 +29,7 @@ RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgf
 RGBColor PerfectSpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgfx::Vector3f& wo) const{
 	float ndotwo = h.normal.dot(wo);
 	wi = -wo + h.normal * 2.0f * ndotwo;
-
+	wi.normalize();
 
 	return (_cr * (_kr / h.normal.dot(wi)));
 }

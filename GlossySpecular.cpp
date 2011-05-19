@@ -2,7 +2,7 @@
 #include "Vector3.h"
 #include "MultiJittered.h"
 
-GlossySpecular::GlossySpecular(){
+GlossySpecular::GlossySpecular() : _exp(100){
 	_sampler = new MultiJittered(40);
 }
 GlossySpecular::~GlossySpecular(){
@@ -62,7 +62,7 @@ RGBColor GlossySpecular::sample_f(const Hit& h, msgfx::Vector3f& wi, const msgfx
 	if(h.normal.dot(wi) < 0.0)
 		// Reflected ray is below surface
 		wi = - u * sp.x - v * sp.y + w * sp.z;
-	
+	wi.normalize();
 	float phong_lobe = pow(r.dot(wi), _exp);
 	pdf = phong_lobe * (h.normal.dot(wi));
 

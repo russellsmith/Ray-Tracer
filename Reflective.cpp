@@ -25,10 +25,11 @@ RGBColor Reflective::shade(Hit& h){
 	h1.recursionDepth = h.recursionDepth;
 
 	msgfx::Vector3f wo = - h.ray.Direction();
+	wo.normalize();
 	msgfx::Vector3f wi;
 
 	RGBColor fr = _reflectiveBRDF->sample_f(h, wi, wo);
-	Ray reflectedRay(h.Position(), wi);
+	Ray reflectedRay(h.Position(), h.Position() + wi);
 
 	L = L + fr * h.scenePtr->traceRay(reflectedRay, h.recursionDepth + 1, h1) * h.normal.dot(wi);
 

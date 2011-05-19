@@ -15,6 +15,7 @@ public:
 	RGBColor operator+(const RGBColor& c) const;
 	RGBColor operator-(const RGBColor& c) const;
 	RGBColor operator*(const float& f) const;
+	RGBColor operator/(const float& f) const;
 	RGBColor operator*(const RGBColor& c) const;
 	void Clamp();
 

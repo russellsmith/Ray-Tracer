@@ -47,12 +47,14 @@ RGBColor Phong::shade(Hit& h){
 	for(int i = 0; i < numLights; ++i)
 	{
 		wi = h.scenePtr->myLights[i]->Position() - h.Position();
+		float d = wi.length();
+		wi.normalize();
 		float ndotwi = h.normal.dot(wi);
 
 		if(ndotwi > 0.0)
 		{
 			// Calculate attenuation factor
-			float d = wi.length();
+			
 			float attenuation = 1 / (d*d*h.scenePtr->myLights[i]->Attenuation().r + d*h.scenePtr->myLights[i]->Attenuation().g + h.scenePtr->myLights[i]->Attenuation().b);
 			L = L + (_diffuseBRDF->f(h, wi, wo) + _specularBRDF->f(h, wi, wo)) * h.scenePtr->myLights[i]->Color() * ndotwi * attenuation;
 		}

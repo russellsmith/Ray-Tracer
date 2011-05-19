@@ -8,6 +8,7 @@
 #include "Vector3.h"
 #include "ViewPlane.h"
 #include "Ray.h"
+#include "Point2D.h"
 
 PerspectiveCamera::PerspectiveCamera() : _d(1.f) {
 
@@ -24,7 +25,8 @@ void PerspectiveCamera::write(std::ostream &out) const {
 void PerspectiveCamera::ComputeRay(const int& column, const int& row, Ray& r) {
 	static msgfx::Vector3f topLeftPosition = _position + _up * _viewPlane.VerticalResolution() * 0.5f - Right() * _viewPlane.HorizontalResolution() * 0.5f
 		- _up * _viewPlane.PixelSize() * 0.5f + Right() * _viewPlane.PixelSize() * 0.5f;
-	r.Start(topLeftPosition - _up * row * _viewPlane.PixelSize() + Right() * _viewPlane.PixelSize() * column);
+	Point2D sp = _sampler->sample_unit_square();
+	r.Start(topLeftPosition - _up * (row + sp.x) * _viewPlane.PixelSize() + Right() * _viewPlane.PixelSize() * (column + sp.y));
 	r.Start(_direction * _d + r.Start());
 	r.End( (r.Start() + (r.Start() - _position)));
 }
